@@ -5,7 +5,7 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
-	"fmt"
+
 )
 
 const (
@@ -217,7 +217,7 @@ func (client *VKClient) MessagesSend(user interface{}, message string, params ur
 	if params == nil {
 		params = url.Values{}
 	}
-	params.Add("message", messageText)
+	params.Add("message", message)
 
 	switch user.(type) {
 	case int:

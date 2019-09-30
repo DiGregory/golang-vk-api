@@ -33,7 +33,7 @@ func (client *VKClient) GetMutual(sourceUid int, targetUid int) ([]*int) {
 
 	params.Set("target_uid", strconv.Itoa(targetUid))
 
-	resp, err := client.makeRequest("friends.getMutual", params)
+	resp, err := client.MakeRequest("friends.getMutual", params)
 	if err != nil {
 		return []*int{}
 	}
