@@ -8,6 +8,11 @@ import (
 	"fmt"
 )
 
+const (
+	ActivityTypeTyping   = "typing"
+	ActivityTypeAudioMsg = "audiomessage"
+)
+
 type Dialog struct {
 	Count    int     `json:"count"`
 	Messages []*Item `json:"items"`
@@ -74,7 +79,7 @@ type StickerAttachment struct {
 	ProductID int    `json:"product_id"`
 	Photo64   string `json:"photo_64"`
 	Photo128  string `json:"photo_128"`
-	Photo256  string `json:'photo_256"`
+	Photo256  string `json:"photo_256"`
 	Photo352  string `json:"photo_352"`
 	Photo512  string `json:"photo_512"`
 	Width     int    `json:"width"`
@@ -137,7 +142,7 @@ func (client *VKClient) DialogsGet(count int, params url.Values) (*Dialog, error
 	}
 	params.Add("count", strconv.Itoa(count))
 
-	resp, err := client.makeRequest("messages.getDialogs", params)
+	resp, err := client.MakeRequest("messages.getDialogs", params)
 	if err != nil {
 		return nil, err
 	}
@@ -156,7 +161,7 @@ func (client *VKClient) GetHistoryAttachments(peerID int, mediaType string, coun
 	params.Add("media_type", mediaType)
 	params.Add("peer_id", strconv.Itoa(peerID))
 
-	resp, err := client.makeRequest("messages.getHistoryAttachments", params)
+	resp, err := client.MakeRequest("messages.getHistoryAttachments", params)
 	if err != nil {
 		return nil, err
 	}
@@ -166,13 +171,18 @@ func (client *VKClient) GetHistoryAttachments(peerID int, mediaType string, coun
 	return att, nil
 }
 
-func (client *VKClient) MessagesGet(count int, params url.Values) (int, []*DialogMessage, error) {
+func (client *VKClient) MessagesGet(count int, chatID int, isDialog bool, params url.Values) (int, []*DialogMessage, error) {
 	if params == nil {
 		params = url.Values{}
 	}
+	if isDialog {
+		chatID += 2000000000
+	}
+
+	params.Add("user_id",strconv.Itoa(chatID))
 	params.Add("count", strconv.Itoa(count))
 
-	resp, err := client.makeRequest("messages.get", params)
+	resp, err := client.MakeRequest("messages.getHistory", params)
 	if err != nil {
 		return 0, nil, err
 	}
@@ -190,7 +200,7 @@ func (client *VKClient) MessagesGetByID(message_ids []int, params url.Values) (i
 	s := ArrayToStr(message_ids)
 	params.Add("message_ids", s)
 
-	resp, err := client.makeRequest("messages.getById", params)
+	resp, err := client.MakeRequest("messages.getById", params)
 	if err != nil {
 		return 0, nil, err
 	}
@@ -201,7 +211,9 @@ func (client *VKClient) MessagesGetByID(message_ids []int, params url.Values) (i
 	return message.Count, message.Messages, nil
 }
 
-func (client *VKClient) MessagesSend(user interface{}, messageText string, params url.Values)(*int, error) {
+
+func (client *VKClient) MessagesSend(user interface{}, message string, params url.Values) (APIResponse, error) {
+
 	if params == nil {
 		params = url.Values{}
 	}
@@ -214,18 +226,14 @@ func (client *VKClient) MessagesSend(user interface{}, messageText string, param
 		params.Add("domain", user.(string))
 	}
 
-	resp, err := client.makeRequest("messages.send", params)
-	 fmt.Println(string(resp.Response))
+
+	resp, err := client.MakeRequest("messages.send", params)
 	if err != nil {
-		return nil,err
-	}
-	var messageID *int
-	err =json.Unmarshal(resp.Response, &messageID)
-	if err!=nil{
-		return nil,err
+		return resp, err
 	}
 
-	return messageID , nil
+	return resp, nil
+
 }
 
 func (client *VKClient) MessagesDelete(ids []int, spam int, deleteForAll int) (int, error) {
@@ -235,7 +243,7 @@ func (client *VKClient) MessagesDelete(ids []int, spam int, deleteForAll int) (i
 	params.Add("spam", strconv.Itoa(spam))
 	params.Add("delete_for_all", strconv.Itoa(deleteForAll))
 
-	resp, err := client.makeRequest("messages.delete", params)
+	resp, err := client.MakeRequest("messages.delete", params)
 	if err != nil {
 		return 0, err
 	}
@@ -255,4 +263,19 @@ func (client *VKClient) MessagesDelete(ids []int, spam int, deleteForAll int) (i
 	}
 
 	return delCount, nil
+}
+
+func (client *VKClient) MessagesSetActivity(user int, params url.Values) error {
+	if params == nil {
+		params = url.Values{}
+	}
+
+	params.Add("user_id", strconv.Itoa(user))
+
+	_, err := client.MakeRequest("messages.setActivity", params)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
