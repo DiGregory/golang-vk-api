@@ -5,6 +5,7 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
+	"fmt"
 )
 
 type Dialog struct {
@@ -200,11 +201,11 @@ func (client *VKClient) MessagesGetByID(message_ids []int, params url.Values) (i
 	return message.Count, message.Messages, nil
 }
 
-func (client *VKClient) MessagesSend(user interface{}, message string, params url.Values) error {
+func (client *VKClient) MessagesSend(user interface{}, messageText string, params url.Values)(*int, error) {
 	if params == nil {
 		params = url.Values{}
 	}
-	params.Add("message", message)
+	params.Add("message", messageText)
 
 	switch user.(type) {
 	case int:
@@ -213,12 +214,18 @@ func (client *VKClient) MessagesSend(user interface{}, message string, params ur
 		params.Add("domain", user.(string))
 	}
 
-	_, err := client.makeRequest("messages.send", params)
+	resp, err := client.makeRequest("messages.send", params)
+	 fmt.Println(string(resp.Response))
 	if err != nil {
-		return err
+		return nil,err
+	}
+	var messageID *int
+	err =json.Unmarshal(resp.Response, &messageID)
+	if err!=nil{
+		return nil,err
 	}
 
-	return nil
+	return messageID , nil
 }
 
 func (client *VKClient) MessagesDelete(ids []int, spam int, deleteForAll int) (int, error) {

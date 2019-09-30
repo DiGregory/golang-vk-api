@@ -7,7 +7,7 @@ import (
 
 //last seen device
 const (
-	_ = iota
+	_               = iota
 	PlatformMobile
 	PlatformIPhone
 	PlatfromIPad
@@ -19,7 +19,7 @@ const (
 
 var (
 	userFields = "nickname,screen_name,sex,bdate,city,country," +
-		"photo,photo_medium,photo_big,has_mobile,contacts," +
+		"photo,photo_medium,photo_big,photo_max_orig,has_mobile,contacts," +
 		"education,online,relation,last_seen,activity," +
 		"can_write_private_message,can_see_all_posts,can_post,universities"
 )
@@ -37,6 +37,8 @@ type User struct {
 	Photo                   string       `json:"photo"`
 	PhotoMedium             string       `json:"photo_medium"`
 	PhotoBig                string       `json:"photo_big"`
+	Photo_max_orig          string       `json:"photo_max_orig"`
+	Photo_max               string       `json:"photo_max"`
 	HasMobile               int          `json:"has_mobile"`
 	Online                  int          `json:"online"`
 	CanPost                 int          `json:"can_post"`
@@ -47,6 +49,7 @@ type User struct {
 	Hidden                  int          `json:"hidden"`
 	Deactivated             string       `json:"deactivated"`
 	Relation                int          `json:"relation"`
+
 }
 
 type UserCity struct {

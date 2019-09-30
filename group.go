@@ -92,11 +92,12 @@ func (client *VKClient) GroupGet(userID int, count int) (int, []*Group, error) {
 	return res.Count, res.Groups, nil
 }
 
-func (client *VKClient) GroupGetMembers(group_id int, count int) (int, []*User, error) {
+func (client *VKClient) GroupGetMembers(group_id int, count int,offset int) (int, []*User, error) {
 	params := url.Values{}
 	params.Set("group_id", strconv.Itoa(group_id))
 	params.Set("count", strconv.Itoa(count))
 	params.Set("fields", userFields)
+	params.Set("offset", strconv.Itoa(offset))
 	resp, err := client.makeRequest("groups.getMembers", params)
 	if err != nil {
 		return 0, nil, err

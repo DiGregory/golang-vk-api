@@ -204,7 +204,7 @@ func (client *VKClient) makeRequest(method string, params url.Values) (APIRespon
 	}
 
 	params.Set("access_token", client.Self.AccessToken)
-	params.Set("v", "5.71")
+	params.Set("v", "5.92")
 
 	resp, err := client.Client.PostForm(endpoint, params)
 	if err != nil {

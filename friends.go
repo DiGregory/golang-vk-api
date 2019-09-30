@@ -26,6 +26,23 @@ type Mutual struct {
 	Users []int `json:"users"`
 }
 
+func (client *VKClient) GetMutual(sourceUid int, targetUid int) ([]*int) {
+	params := url.Values{}
+
+		params.Set("source_uid", strconv.Itoa(sourceUid))
+
+	params.Set("target_uid", strconv.Itoa(targetUid))
+
+	resp, err := client.makeRequest("friends.getMutual", params)
+	if err != nil {
+		return []*int{}
+	}
+
+	var friends []*int
+	json.Unmarshal(resp.Response, &friends)
+	return friends
+}
+
 func (client *VKClient) FriendsGet(uid int, count int) (int, []*User, error) {
 	params := url.Values{}
 	params.Set("user_id", strconv.Itoa(uid))
